@@ -57,13 +57,16 @@ public class HardwareMecanum
     public DcMotor  rightFrontDrive  = null;
     public DcMotor  leftRearDrive    = null;
     public DcMotor  rightRearDrive   = null;
-//    public DcMotor  leftArm     = null;
-//    public Servo    leftClaw    = null;
-//    public Servo    rightClaw   = null;
+    public DcMotor  liftMotor   = null;
 
-//    public static final double MID_SERVO       =  0.5 ;
-//    public static final double ARM_UP_POWER    =  0.45 ;
-//    public static final double ARM_DOWN_POWER  = -0.45 ;
+
+    // *** added 11/11
+    public Servo    leftClaw    = null;
+    public Servo    rightClaw   = null;
+    public static final double MID_SERVO       =  0.5 ;
+    public static final double ARM_UP_POWER    =  0.55 ;
+    public static final double ARM_DOWN_POWER  = -0.55 ;
+    // *** end added 11/11
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -84,7 +87,12 @@ public class HardwareMecanum
         rightFrontDrive = hwMap.get(DcMotor.class, "rf_drive");
         leftRearDrive   = hwMap.get(DcMotor.class, "lr_drive");
         rightRearDrive  = hwMap.get(DcMotor.class, "rr_drive");
-//        leftArm    = hwMap.get(DcMotor.class, "left_arm");
+
+        // *** added 11/11  randomly picked direction based on the drive motors; need to test
+        liftMotor    = hwMap.get(DcMotor.class, "lift");
+        liftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+        // *** end added 11/11
+
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
         leftRearDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
@@ -95,7 +103,10 @@ public class HardwareMecanum
         leftRearDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightRearDrive.setPower(0);
-//        leftArm.setPower(0);
+
+        // *** added 11/11
+        liftMotor.setPower(0);
+        // *** end added 11/11
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -103,13 +114,18 @@ public class HardwareMecanum
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        leftArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        // *** added 11/11
+        liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // *** end added 11/11
 
         // Define and initialize ALL installed servos.
-//        leftClaw  = hwMap.get(Servo.class, "left_hand");
-//        rightClaw = hwMap.get(Servo.class, "right_hand");
+        // *** added 11/11
+        leftClaw  = hwMap.get(Servo.class, "lclaw");
+        rightClaw = hwMap.get(Servo.class, "rclaw");
 //        leftClaw.setPosition(MID_SERVO);
 //        rightClaw.setPosition(MID_SERVO);
+        // *** end added 11/11
     }
  }
 

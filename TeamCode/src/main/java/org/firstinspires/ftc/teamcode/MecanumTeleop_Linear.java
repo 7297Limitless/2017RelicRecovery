@@ -56,8 +56,11 @@ public class MecanumTeleop_Linear extends LinearOpMode {
     /* Declare OpMode members. */
     HardwareMecanum robot           = new HardwareMecanum();   // Use our mecanum hardware
                                                                // could also use HardwarePushbotMatrix class.
-//    double          clawOffset      = 0;                       // Servo mid position
-//    final double    CLAW_SPEED      = 0.02 ;                   // sets rate to move servo
+
+    // *** added 11/11
+    double          clawOffset      = 0;                       // Servo mid position
+    final double    CLAW_SPEED      = 0.04 ;                   // sets rate to move servo
+    // *** end added 11/11
 
     @Override
     public void runOpMode() {
@@ -93,10 +96,10 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             turn  =  gamepad1.right_stick_x;
 
             // Combine drive and turn for blended motion.
-            left_front  = drive + turn + strafe;
-            right_front = drive - turn - strafe;
-            left_rear = drive + turn - strafe;
-            right_rear = drive - turn + strafe;
+            left_front  = drive + turn - strafe;
+            right_front = drive - turn + strafe;
+            left_rear = drive + turn + strafe;
+            right_rear = drive - turn - strafe;
 
             // Normalize the values so neither exceed +/- 1.0
             max = Math.max(Math.max(Math.abs(left_front), Math.abs(left_rear)),
@@ -116,26 +119,29 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             robot.rightRearDrive.setPower(right_rear);
 
             // Use gamepad left & right Bumpers to open and close the claw
-//            if (gamepad1.right_bumper)
-//                clawOffset += CLAW_SPEED;
-//            else if (gamepad1.left_bumper)
-//                clawOffset -= CLAW_SPEED;
+            // *** added 11/11 down to the telemetry line
+            if (gamepad1.right_bumper)
+                clawOffset += CLAW_SPEED;
+            else if (gamepad1.left_bumper)
+                clawOffset -= CLAW_SPEED;
 
             // Move both servos to new position.  Assume servos are mirror image of each other.
-//            clawOffset = Range.clip(clawOffset, -0.5, 0.5);
-//            robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
-//            robot.rightClaw.setPosition(robot.MID_SERVO - clawOffset);
+            clawOffset = Math.max (-0.5,Math.min(clawOffset,+0.5));//Range.clip(clawOffset, -0.5, 0.5);
+           robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
+            robot.rightClaw.setPosition(robot.MID_SERVO - clawOffset);
 
             // Use gamepad buttons to move arm up (Y) and down (A)
-//            if (gamepad1.y)
-//                robot.leftArm.setPower(robot.ARM_UP_POWER);
-//            else if (gamepad1.a)
-//                robot.leftArm.setPower(robot.ARM_DOWN_POWER);
-//            else
-//                robot.leftArm.setPower(0.0);
+            if (gamepad1.y)
+                robot.liftMotor.setPower(robot.ARM_UP_POWER);
+            else if (gamepad1.a)
+                robot.liftMotor.setPower(robot.ARM_DOWN_POWER);
+            else
+                robot.liftMotor.setPower(0.0);
 
             // Send telemetry message to signify robot running;
-//            telemetry.addData("claw",  "Offset = %.2f", clawOffset);
+            telemetry.addData("claw",  "Offset = %.2f", clawOffset);
+            // *** end added 11/11
+
             telemetry.addData("left_front",  "%.2f", left_front);
             telemetry.addData("right_front", "%.2f", right_front);
             telemetry.addData("left_rear",  "%.2f", left_rear);
@@ -143,7 +149,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             telemetry.update();
 
             // Pace this loop so jaw action is reasonable speed.
-            sleep(50);
+            sleep(25);
         }
     }
 }
