@@ -77,8 +77,10 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
     static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
                                                       (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
-    static final double     TURN_SPEED              = 0.5;
+    static final double     DRIVE_SPEED             = 1;
+    static final double     TURN_SPEED              = 1;
+
+    static final double     INCHES_PER_DEGREE       = 0.112; // this is calibrated; don't change it.
 
     @Override
     public void runOpMode() {
@@ -122,22 +124,25 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting the angle (not distance or speed)
-        encoderDriveMecanumPolar(DRIVE_SPEED,0,12,5.0);
-        encoderDriveMecanumPolar(DRIVE_SPEED,90,12,5.0);
-        encoderDriveMecanumPolar(DRIVE_SPEED,180,12,5.0);
-        encoderDriveMecanumPolar(DRIVE_SPEED,270,12,5.0);
+//        encoderDriveMecanumPolar(DRIVE_SPEED,0,12,5.0);
+//        encoderDriveMecanumPolar(DRIVE_SPEED,90,12,5.0);
+//        encoderDriveMecanumPolar(DRIVE_SPEED,180,12,5.0);
+//        encoderDriveMecanumPolar(DRIVE_SPEED,270,12,5.0);
 
+        //encoderRotateMecanum(TURN_SPEED,360,5.0);
+        //encoderDriveMecanumPolar(DRIVE_SPEED,0,48,5.0);
+        encoderDriveMechanumCart(DRIVE_SPEED,48,0,5.0);
 
-        robot.leftClaw.setPosition(1.0);            // S4: Stop and close the claw.
-        robot.rightClaw.setPosition(0.0);
-        sleep(1000);     // pause for servos to move
+//        robot.leftClaw.setPosition(1.0);            // S4: Stop and close the claw.
+//        robot.rightClaw.setPosition(0.0);
+//        sleep(1000);     // pause for servos to move
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
 
 
-    // This method is a wrapper for encoderDriveMechanum to make it easier to use.
+    // This method is a wrapper for encoderDriveMechanumCart to make it easier to use.
     public void encoderDriveMecanumPolar(double speed,
                                          double angle, double distance,
                                          double timeoutS) {
@@ -150,8 +155,8 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         Angle 0 means going straight forward in +y direction.
         Angle 90 means going straight to the right in +x direction.
          */
-        rads = Math.PI/180*angle;
-        rads = Math.PI/4 - rads;
+        rads = Math.PI/180*angle;   // convert angle from degrees to radians
+        rads = Math.PI/4 - rads;    // change from compass heading to cartesian plane angle
         xvector = distance * Math.cos(rads);
         yvector = distance * Math.sin(rads);
 
@@ -186,10 +191,10 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Calculate how far should each Mecanum wheel turn
-            leftFrontInches  = yvector - Math.sqrt(2)*xvector;
-            rightFrontInches = yvector + Math.sqrt(2)*xvector;
-            leftRearInches   = yvector + Math.sqrt(2)*xvector;
-            rightRearInches  = yvector - Math.sqrt(2)*xvector;
+            leftFrontInches  = yvector + Math.sqrt(2)*xvector;
+            rightFrontInches = yvector - Math.sqrt(2)*xvector;
+            leftRearInches   = yvector - Math.sqrt(2)*xvector;
+            rightRearInches  = yvector + Math.sqrt(2)*xvector;
 
             // Determine new target position, and pass to motor controller
             newLeftFrontTarget  = robot.leftFrontDrive.getCurrentPosition()  + (int)(leftFrontInches  * COUNTS_PER_INCH);
@@ -269,60 +274,90 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
      */
 
 
-    public void encoderRotateMecanum(double speed,
-                             double angle, double direction,
-                             double timeoutS) {
+    public void encoderRotateMecanum(double speed, double angle, double timeoutS) {
 
+        int newLeftFrontTarget;
+        int newRightFrontTarget;
+        int newLeftRearTarget;
+        int newRightRearTarget;
 
-//        int newLeftTarget;
-//        int newRightTarget;
-//
-//        // Ensure that the opmode is still active
-//        if (opModeIsActive()) {
-//
-//            // Determine new target position, and pass to motor controller
-//            newLeftTarget = robot.leftDrive.getCurrentPosition() + (int)(leftInches * COUNTS_PER_INCH);
-//            newRightTarget = robot.rightDrive.getCurrentPosition() + (int)(rightInches * COUNTS_PER_INCH);
-//            robot.leftDrive.setTargetPosition(newLeftTarget);
-//            robot.rightDrive.setTargetPosition(newRightTarget);
-//
-//            // Turn On RUN_TO_POSITION
-//            robot.leftDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.rightDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//
-//            // reset the timeout time and start motion.
-//            runtime.reset();
-//            robot.leftDrive.setPower(Math.abs(speed));
-//            robot.rightDrive.setPower(Math.abs(speed));
-//
-//            // keep looping while we are still active, and there is time left, and both motors are running.
-//            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-//            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-//            // always end the motion as soon as possible.
-//            // However, if you require that BOTH motors have finished their moves before the robot continues
-//            // onto the next step, use (isBusy() || isBusy()) in the loop test.
-//            while (opModeIsActive() &&
-//                    (runtime.seconds() < timeoutS) &&
-//                    (robot.leftDrive.isBusy() && robot.rightDrive.isBusy())) {
-//
-//                // Display it for the driver.
-//                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-//                telemetry.addData("Path2",  "Running at %7d :%7d",
-//                        robot.leftDrive.getCurrentPosition(),
-//                        robot.rightDrive.getCurrentPosition());
-//                telemetry.update();
-//            }
-//
-//            // Stop all motion;
-//            robot.leftDrive.setPower(0);
-//            robot.rightDrive.setPower(0);
-//
-//            // Turn off RUN_TO_POSITION
-//            robot.leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//            robot.rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//
-//            //  sleep(250);   // optional pause after each move
-//        }
+        double leftFrontInches;
+        double rightFrontInches;
+        double leftRearInches;
+        double rightRearInches;
+
+        // Ensure that the opmode is still active
+        if (opModeIsActive()) {
+
+            // Calculate how far should each Mecanum wheel turn
+            leftFrontInches  =  angle * INCHES_PER_DEGREE;
+            rightFrontInches = -angle * INCHES_PER_DEGREE;
+            leftRearInches   =  angle * INCHES_PER_DEGREE;
+            rightRearInches  = -angle * INCHES_PER_DEGREE;
+
+            // Determine new target position, and pass to motor controller
+            newLeftFrontTarget  = robot.leftFrontDrive.getCurrentPosition()  + (int)(leftFrontInches  * COUNTS_PER_INCH);
+            newRightFrontTarget = robot.rightFrontDrive.getCurrentPosition() + (int)(rightFrontInches * COUNTS_PER_INCH);
+            newLeftRearTarget   = robot.leftRearDrive.getCurrentPosition()   + (int)(leftRearInches  * COUNTS_PER_INCH);
+            newRightRearTarget  = robot.rightRearDrive.getCurrentPosition()  + (int)(rightRearInches * COUNTS_PER_INCH);
+
+            robot.leftFrontDrive.setTargetPosition(newLeftFrontTarget);
+            robot.rightFrontDrive.setTargetPosition(newRightFrontTarget);
+            robot.leftRearDrive.setTargetPosition(newLeftRearTarget);
+            robot.rightRearDrive.setTargetPosition(newRightRearTarget);
+
+            // Turn On RUN_TO_POSITION
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.rightRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            // reset the timeout time and start motion.
+            runtime.reset();
+            robot.leftFrontDrive.setPower(Math.abs(speed));
+            robot.rightFrontDrive.setPower(Math.abs(speed));
+            robot.leftRearDrive.setPower(Math.abs(speed));
+            robot.rightRearDrive.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and both motors are running.
+            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            // However, if you require that BOTH motors have finished their moves before the robot continues
+            // onto the next step, use (isBusy() || isBusy()) in the loop test.
+            while (opModeIsActive()
+                    && (runtime.seconds() < timeoutS)
+                    && (robot.leftFrontDrive.isBusy() || robot.rightFrontDrive.isBusy()
+                    || robot.leftRearDrive.isBusy() || robot.rightRearDrive.isBusy())) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1",  "Running to %7d :%7d :%7d :%7d",
+                        newLeftFrontTarget,
+                        newRightFrontTarget,
+                        newLeftRearTarget,
+                        newRightRearTarget);
+                telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d",
+                        robot.leftFrontDrive.getCurrentPosition(),
+                        robot.rightFrontDrive.getCurrentPosition(),
+                        robot.leftRearDrive.getCurrentPosition(),
+                        robot.rightRearDrive.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.leftFrontDrive.setPower(0);
+            robot.rightFrontDrive.setPower(0);
+            robot.leftRearDrive.setPower(0);
+            robot.rightRearDrive.setPower(0);
+
+            // Turn off RUN_TO_POSITION
+            robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //  sleep(250);   // optional pause after each move
+        }
     }
 
 }
