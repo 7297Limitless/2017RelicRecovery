@@ -72,6 +72,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
         double strafe;
         double turn;
         double max;
+        double arm_lift;
 
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
@@ -118,30 +119,30 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             robot.leftRearDrive.setPower(left_rear);
             robot.rightRearDrive.setPower(right_rear);
 
-            // Use gamepad left & right Bumpers to open and close the claw
-            // *** added 11/11 down to the telemetry line
-            if (gamepad1.right_bumper)
+            // Use gamepad right stick to open and close the claw
+            if (gamepad2.right_stick_x>0)
                 clawOffset += CLAW_SPEED;
-            else if (gamepad1.left_bumper)
+            else if (gamepad2.right_stick_x<0)
                 clawOffset -= CLAW_SPEED;
 
             // Move both servos to new position.  Assume servos are mirror image of each other.
-            clawOffset = Math.max (-0.5,Math.min(clawOffset,+0.5));//Range.clip(clawOffset, -0.5, 0.5);
-           robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
+            clawOffset = Math.max(-0.5,Math.min(clawOffset,+0.5));//Range.clip(clawOffset, -0.5, 0.5);
+            robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
             robot.rightClaw.setPosition(robot.MID_SERVO - clawOffset);
 
-            // Use gamepad buttons to move arm up (Y) and down (A)
-            if (gamepad1.y)
-                robot.liftMotor.setPower(robot.ARM_UP_POWER);
-            else if (gamepad1.a)
-                robot.liftMotor.setPower(robot.ARM_DOWN_POWER);
-            else
-                robot.liftMotor.setPower(0.0);
+
+
+            // Use gamepad2 left stick to lift arm
+            arm_lift = gamepad2.left_stick_y;
+            if (Math.abs(arm_lift)>1.0) {
+                arm_lift = Math.signum(arm_lift);
+            }
+            robot.liftMotor.setPower(arm_lift);
+
 
             // Send telemetry message to signify robot running;
             telemetry.addData("claw",  "Offset = %.2f", clawOffset);
-            // *** end added 11/11
-
+            telemetry.addData("arm_lift",  "%.2f", arm_lift);
             telemetry.addData("left_front",  "%.2f", left_front);
             telemetry.addData("right_front", "%.2f", right_front);
             telemetry.addData("left_rear",  "%.2f", left_rear);
@@ -149,7 +150,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             telemetry.update();
 
             // Pace this loop so jaw action is reasonable speed.
-            sleep(25);
+            sleep(20);
         }
     }
 }

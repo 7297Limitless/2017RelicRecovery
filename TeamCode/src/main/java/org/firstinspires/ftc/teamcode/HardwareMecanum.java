@@ -88,25 +88,24 @@ public class HardwareMecanum
         leftRearDrive   = hwMap.get(DcMotor.class, "lr_drive");
         rightRearDrive  = hwMap.get(DcMotor.class, "rr_drive");
 
-        // *** added 11/11  randomly picked direction based on the drive motors; need to test
-        liftMotor    = hwMap.get(DcMotor.class, "lift");
-        liftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
-        // *** end added 11/11
-
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
         leftRearDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightRearDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
+
+
+        // Lift motor
+        liftMotor    = hwMap.get(DcMotor.class, "lift");
+        liftMotor.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
+
 
         // Set all motors to zero power
         leftFrontDrive.setPower(0);
         leftRearDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightRearDrive.setPower(0);
-
-        // *** added 11/11
         liftMotor.setPower(0);
-        // *** end added 11/11
+
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
