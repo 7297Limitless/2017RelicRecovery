@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -60,13 +61,13 @@ public class HardwareMecanum
     public DcMotor  liftMotor   = null;
 
 
-    // *** added 11/11
     public Servo    leftClaw    = null;
     public Servo    rightClaw   = null;
     public static final double MID_SERVO       =  0.5 ;
     public static final double ARM_UP_POWER    =  0.55 ;
     public static final double ARM_DOWN_POWER  = -0.55 ;
-    // *** end added 11/11
+
+    public TouchSensor armLowerStop = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -113,18 +114,16 @@ public class HardwareMecanum
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        // *** added 11/11
         liftMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        // *** end added 11/11
 
         // Define and initialize ALL installed servos.
-        // *** added 11/11
         leftClaw  = hwMap.get(Servo.class, "lclaw");
         rightClaw = hwMap.get(Servo.class, "rclaw");
 //        leftClaw.setPosition(MID_SERVO);
 //        rightClaw.setPosition(MID_SERVO);
-        // *** end added 11/11
+
+        // Initialize the touch sensor for the lifter stop
+        armLowerStop = hwMap.get(TouchSensor.class, "lowerstop");
     }
  }
 

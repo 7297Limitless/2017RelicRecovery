@@ -137,6 +137,9 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             if (Math.abs(arm_lift)>1.0) {
                 arm_lift = Math.signum(arm_lift);
             }
+            if (robot.armLowerStop.isPressed() && arm_lift < 0) {
+                arm_lift = 0;
+            }
             robot.liftMotor.setPower(arm_lift);
 
 
@@ -147,6 +150,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             telemetry.addData("right_front", "%.2f", right_front);
             telemetry.addData("left_rear",  "%.2f", left_rear);
             telemetry.addData("right_rear", "%.2f", right_rear);
+            telemetry.addData("armLowerStop", "Pressed = %d", robot.armLowerStop.isPressed());
             telemetry.update();
 
             // Pace this loop so jaw action is reasonable speed.
