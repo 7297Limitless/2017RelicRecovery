@@ -92,9 +92,9 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             // Run wheels in POV mode (note: The joystick goes negative when pushed forwards, so negate it)
             // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
             // This way it's also easy to just drive straight, or just turn.
-            drive = -gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x;
-            turn  =  gamepad1.right_stick_x;
+            drive = -(Math.signum(gamepad1.left_stick_y) * Math.pow(gamepad1.left_stick_y, 2));
+            strafe = Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
+            turn  =  Math.signum(gamepad1.right_stick_x) * Math.pow(gamepad1.right_stick_x, 2);
 
             // Combine drive and turn for blended motion.
             left_front  = drive + turn - strafe;
