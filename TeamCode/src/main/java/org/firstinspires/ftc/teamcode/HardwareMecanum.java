@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -67,7 +68,7 @@ public class HardwareMecanum
     public static final double ARM_UP_POWER    =  0.55 ;
     public static final double ARM_DOWN_POWER  = -0.55 ;
 
-    public TouchSensor armLowerStop = null;
+    public DigitalChannel armLowerStop = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -123,7 +124,8 @@ public class HardwareMecanum
 //        rightClaw.setPosition(MID_SERVO);
 
         // Initialize the touch sensor for the lifter stop
-        armLowerStop = hwMap.get(TouchSensor.class, "lowerstop");
+        armLowerStop = hwMap.get(DigitalChannel.class, "lowerstop");
+        armLowerStop.setMode(DigitalChannel.Mode.INPUT);
     }
  }
 

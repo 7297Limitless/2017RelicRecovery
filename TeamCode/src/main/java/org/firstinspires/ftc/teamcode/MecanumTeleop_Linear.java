@@ -74,6 +74,8 @@ public class MecanumTeleop_Linear extends LinearOpMode {
         double max;
         double arm_lift;
 
+        boolean armLowerStopMemory = false;
+
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
          */
@@ -137,9 +139,14 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             if (Math.abs(arm_lift)>1.0) {
                 arm_lift = Math.signum(arm_lift);
             }
-            if (robot.armLowerStop.isPressed() && arm_lift < 0) {
-                arm_lift = 0;
+            if (!robot.armLowerStop.getState() && arm_lift >= 0) {
+                if (!armLowerStopMemory) { // First loop with button pressed
+                    arm_lift = -0.5; // Stop the motor faster by driving the other direction.
+                } else {
+                    arm_lift = 0;
+                }
             }
+            armLowerStopMemory = !robot.armLowerStop.getState();
             robot.liftMotor.setPower(arm_lift);
 
 
@@ -150,7 +157,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             telemetry.addData("right_front", "%.2f", right_front);
             telemetry.addData("left_rear",  "%.2f", left_rear);
             telemetry.addData("right_rear", "%.2f", right_rear);
-            telemetry.addData("armLowerStop", "Pressed = %d", robot.armLowerStop.isPressed());
+            telemetry.addData("armLowerStop", "Pressed = %d", !robot.armLowerStop.getState() ? 1 : 0);
             telemetry.update();
 
             // Pace this loop so jaw action is reasonable speed.
