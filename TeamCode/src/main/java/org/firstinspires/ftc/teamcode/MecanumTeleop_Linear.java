@@ -58,8 +58,9 @@ public class MecanumTeleop_Linear extends LinearOpMode {
                                                                // could also use HardwarePushbotMatrix class.
 
     // *** added 11/11
-    double          clawOffset      = 0;                       // Servo mid position
-    final double    CLAW_SPEED      = 0.04 ;                   // sets rate to move servo
+    double          clawOffsetLeft      = 0;                       // Servo mid position
+    double          clawOffsetRight     = 0;                       // Servo mid position
+    final double    CLAW_SPEED          = 0.04 ;                   // sets rate to move servo
     // *** end added 11/11
 
     @Override
@@ -95,8 +96,8 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             // In this mode the Left stick moves the robot fwd and back, the Right stick turns left and right.
             // This way it's also easy to just drive straight, or just turn.
             drive = -(Math.signum(gamepad1.left_stick_y) * Math.pow(gamepad1.left_stick_y, 2));
-            strafe = Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
-            turn  =  Math.signum(gamepad1.right_stick_x) * Math.pow(gamepad1.right_stick_x, 2);
+            strafe = -Math.signum(gamepad1.left_stick_x) * Math.pow(gamepad1.left_stick_x, 2);
+            turn  =  -Math.signum(gamepad1.right_stick_x) * Math.pow(gamepad1.right_stick_x, 2);
 
             // Combine drive and turn for blended motion.
             left_front  = drive + turn - strafe;
@@ -123,22 +124,29 @@ public class MecanumTeleop_Linear extends LinearOpMode {
 
             // Use gamepad right stick to open and close the claw
             if (gamepad2.right_stick_x>0)
-                clawOffset += CLAW_SPEED;
+                clawOffsetRight += CLAW_SPEED;
             else if (gamepad2.right_stick_x<0)
-                clawOffset -= CLAW_SPEED;
+                clawOffsetRight -= CLAW_SPEED;
+
+            if (gamepad2.left_stick_x>0)
+                clawOffsetLeft += CLAW_SPEED;
+            else if (gamepad2.left_stick_x<0)
+                clawOffsetLeft -= CLAW_SPEED;
+
 
             // Move both servos to new position.  Assume servos are mirror image of each other.
-            clawOffset = Math.max(-0.5,Math.min(clawOffset,+0.5));//Range.clip(clawOffset, -0.5, 0.5);
-            robot.leftClaw.setPosition(robot.MID_SERVO + clawOffset);
-            robot.rightClaw.setPosition(robot.MID_SERVO - clawOffset);
+            clawOffsetRight = Math.max(-0.5,Math.min(clawOffsetRight,+0.5));//Range.clip(clawOffset, -0.5, 0.5);
+            clawOffsetLeft  = Math.max(-0.5,Math.min(clawOffsetLeft,+0.5));
+            robot.rightClaw.setPosition(robot.MID_SERVO - clawOffsetRight);
+            robot.leftClaw.setPosition( robot.MID_SERVO - clawOffsetLeft);
+
 
 
 
             // Use gamepad2 left stick to lift arm
-            arm_lift = gamepad2.left_stick_y;
-            if (Math.abs(arm_lift)>1.0) {
-                arm_lift = Math.signum(arm_lift);
-            }
+            arm_lift =  gamepad2.dpad_down ?  1 :
+                        gamepad2.dpad_up   ? -1 :
+                                              0;
             if (!robot.armLowerStop.getState() && arm_lift >= 0) {
                 if (!armLowerStopMemory) { // First loop with button pressed
                     arm_lift = -0.5; // Stop the motor faster by driving the other direction.
@@ -151,7 +159,11 @@ public class MecanumTeleop_Linear extends LinearOpMode {
 
 
             // Send telemetry message to signify robot running;
-            telemetry.addData("claw",  "Offset = %.2f", clawOffset);
+            telemetry.addData("drive", "Drive: %.2f", drive);
+            telemetry.addData("strafe", "Strafe: %.2f", strafe);
+            telemetry.addData("turn", "Turn: %.2f", turn);
+            telemetry.addData("rightClaw",  "Offset = %.2f", clawOffsetRight);
+            telemetry.addData("leftClaw",  "Offset = %.2f", clawOffsetLeft);
             telemetry.addData("arm_lift",  "%.2f", arm_lift);
             telemetry.addData("left_front",  "%.2f", left_front);
             telemetry.addData("right_front", "%.2f", right_front);
