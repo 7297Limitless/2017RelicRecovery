@@ -116,26 +116,39 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-//        // Step through each leg of the path,
-//        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-//        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-//        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-//        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        /* First grab the glyph */
+        robot.leftClaw.setPosition(.4);
+        robot.rightClaw.setPosition(.6);
+        sleep(500); // wait for servos to move
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting the angle (not distance or speed)
-//        encoderDriveMecanumPolar(DRIVE_SPEED,0,12,5.0);
-//        encoderDriveMecanumPolar(DRIVE_SPEED,90,12,5.0);
-//        encoderDriveMecanumPolar(DRIVE_SPEED,180,12,5.0);
-//        encoderDriveMecanumPolar(DRIVE_SPEED,270,12,5.0);
+        /* Then lift the arm to get the glyph out of the way */
+        robot.liftMotor.setPower(-1); // yes, this should be negative
+        sleep(500);
+        robot.liftMotor.setPower(0);
+        sleep(250);
 
-        //encoderRotateMecanum(TURN_SPEED,360,5.0);
-        //encoderDriveMecanumPolar(DRIVE_SPEED,0,48,5.0);
-        encoderDriveMechanumCart(DRIVE_SPEED,48,0,5.0);
+        /* Now drive off the pedestal */
+        encoderDriveMechanumCart(.8,0,18,5);
+        /* Rotate towards the cryptobox */
+        encoderRotateMecanum(.8,95,5);
 
-//        robot.leftClaw.setPosition(1.0);            // S4: Stop and close the claw.
-//        robot.rightClaw.setPosition(0.0);
-//        sleep(1000);     // pause for servos to move
+        /* Let go of the glyph */
+        robot.leftClaw.setPosition(1);
+        robot.rightClaw.setPosition(0);
+        /* Lower arm, keeping cable tension */
+        while (robot.armLowerStop.getState()) {
+            robot.liftMotor.setPower(1);
+            sleep(10);
+        }
+        robot.liftMotor.setPower(-0.5);
+        sleep(20);
+        robot.liftMotor.setPower(0);
+        /* Place glyph in cryptobox */
+        encoderDriveMechanumCart(.8,0,6,2);
+
+        sleep(500);
+        encoderDriveMechanumCart(.8,0,-2,1);
+        encoderRotateMecanum(.8,20,.5);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
