@@ -30,12 +30,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on encoder counts.
@@ -64,9 +61,9 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@Autonomous(name="WEALTHY CORNER WITH RELIC", group="Pushbot")
+@Autonomous(name="BAD CORNER", group="Pushbot")
 //@Disabled
-public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
+public class AutoDriveByEncoder_Mechanum2 extends LinearOpMode {
 
     /* Declare OpMode members. */
     HardwareMecanum         robot   = new HardwareMecanum();   // Use a Pushbot's hardware
@@ -128,15 +125,16 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         sleep(250);
 
         /* Now drive off the pedestal */
-        encoderDriveMechanumCart(.8,0,10,3);
+        encoderDriveMechanumCart(.8,0,15,5);
         /* Rotate towards the cryptobox */
-        encoderRotateMecanum(.8,45,5);
-
+        //encoderRotateMecanum(.8,90,5);
+        //sleep(250);
+        //encoderRotateMecanum(.8,-10,5);
 
         /* Let go of the glyph */
         robot.leftClaw.setPosition(1);
         robot.rightClaw.setPosition(0);
-        /* Lower arm, keeping cable tension */
+        /* Lower arm, keeping cable tenAutoDriveByEncoder_Mechanumsion */
         while (robot.armLowerStop.getState()) {
             robot.liftMotor.setPower(1);
             sleep(10);
@@ -145,11 +143,11 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         sleep(20);
         robot.liftMotor.setPower(0);
         /* Place glyph in cryptobox */
-        encoderDriveMechanumCart(.8,0,6,2);
+        encoderDriveMechanumCart(.8,6,0,2);
 
         sleep(500);
-        encoderDriveMechanumCart(.8,0,-2,1);
-        encoderRotateMecanum(.8,20,.5);
+        encoderDriveMechanumCart(.8,0,-3,1);
+        encoderRotateMecanum(.8,-20,.5);
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -345,30 +343,29 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
                     || robot.leftRearDrive.isBusy() || robot.rightRearDrive.isBusy())) {
 
                 // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d :%7d :%7d",
+                telemetry.addData("Path1", "Running to %7d :%7d :%7d :%7d",
                         newLeftFrontTarget,
                         newRightFrontTarget,
                         newLeftRearTarget,
                         newRightRearTarget);
-                telemetry.addData("Path2",  "Running at %7d :%7d :%7d :%7d",
+                telemetry.addData("Path2", "Running at %7d :%7d :%7d :%7d",
                         robot.leftFrontDrive.getCurrentPosition(),
                         robot.rightFrontDrive.getCurrentPosition(),
                         robot.leftRearDrive.getCurrentPosition(),
                         robot.rightRearDrive.getCurrentPosition());
-                telemetry.addData("Path666",  "Turning through angle %f",
+                telemetry.addData("Path666", "Turning through angle %f",
                         angle);
-                telemetry.addData("Path554","Amount of Inches angle %f %f %f %f",
+                telemetry.addData("Path554", "Amount of Inches angle %f %f %f %f",
                         leftFrontInches,
                         rightFrontInches,
                         leftRearInches,
                         rightRearInches
-                        );
+                );
 
                 telemetry.update();
 
             }
-
-            // Stop all motion;
+                // Stop all motion;
             robot.leftFrontDrive.setPower(0);
             robot.rightFrontDrive.setPower(0);
             robot.leftRearDrive.setPower(0);
@@ -376,7 +373,7 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
 
             // Turn off RUN_TO_POSITION
             robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);sleep(250);
             robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
