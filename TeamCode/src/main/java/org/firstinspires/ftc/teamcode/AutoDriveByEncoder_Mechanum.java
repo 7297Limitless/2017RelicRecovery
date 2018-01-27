@@ -137,7 +137,7 @@ public class AutoDriveByEncoder_Mechanum extends LinearOpMode {
         robot.leftClaw.setPosition(1);
         robot.rightClaw.setPosition(0);
         /* Lower arm, keeping cable tension */
-        while (robot.armLowerStop.getState()) {
+        while (!robot.armLowerStop.getState()) {
             robot.liftMotor.setPower(1);
             sleep(10);
         }

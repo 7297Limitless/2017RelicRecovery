@@ -75,7 +75,7 @@ public class MecanumTeleop_Linear extends LinearOpMode {
         double max;
         double arm_lift;
 
-        boolean armLowerStopMemory = false;
+        int armLowerStopMemory = 0;
 
         /* Initialize the hardware variables.
          * The init() method of the hardware class does all the work here
@@ -151,14 +151,20 @@ public class MecanumTeleop_Linear extends LinearOpMode {
             arm_lift =  gamepad2.dpad_down ?  1 :
                         gamepad2.dpad_up   ? -1 :
                                               0;
-            if (!robot.armLowerStop.getState() && arm_lift >= 0) {
-                if (!armLowerStopMemory) { // First loop with button pressed
-                    arm_lift = -0.5; // Stop the motor faster by driving the other direction.
+            if (robot.armLowerStop.getState() && arm_lift >= 0) {
+                if (armLowerStopMemory < 3) { // First loop with button pressed
+                    arm_lift = -1; // Stop the motor faster by driving the other direction.
                 } else {
                     arm_lift = 0;
                 }
             }
-            armLowerStopMemory = !robot.armLowerStop.getState();
+            if (!robot.armLowerStop.getState())  {
+                armLowerStopMemory = 0;
+            } else {
+                armLowerStopMemory += 1;
+            }
+
+
             robot.liftMotor.setPower(arm_lift);
 
 
